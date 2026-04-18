@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coming Soon</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      overflow: hidden;
+      color: white;
+    }
+
+    /* Animated gradient glow */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, #00c6ff55, transparent);
+      top: -200px;
+      left: -200px;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, #ff00cc55, transparent);
+      bottom: -200px;
+      right: -200px;
+      animation: float 8s ease-in-out infinite reverse;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(30px); }
+    }
+
+    .card {
+      backdrop-filter: blur(20px);
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 50px 40px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      max-width: 600px;
+      width: 90%;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, #00c6ff, #ff00cc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #00c6ff; }
+      to { text-shadow: 0 0 25px #ff00cc; }
+    }
+
+    p {
+      margin-bottom: 25px;
+      opacity: 0.8;
+    }
+
+    .countdown {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 25px;
+    }
+
+    .time-box {
+      flex: 1;
+      margin: 5px;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .time-box h2 {
+      font-size: 1.4rem;
+    }
+
+    .time-box span {
+      font-size: 0.7rem;
+      opacity: 0.7;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      outline: none;
+      margin-bottom: 10px;
+      background: rgba(255,255,255,0.1);
+      color: white;
+    }
+
+    input::placeholder {
+      color: #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #00c6ff, #ff00cc);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #ff00cc;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>Coming Soon</h1>
+    <p>I'm building something awesome 🔥</p>
+
+    <div class="countdown">
+      <div class="time-box">
+        <h2 id="days">00</h2>
+        <span>DAYS</span>
+      </div>
+      <div class="time-box">
+        <h2 id="hours">00</h2>
+        <span>HOURS</span>
+      </div>
+      <div class="time-box">
+        <h2 id="minutes">00</h2>
+        <span>MIN</span>
+      </div>
+      <div class="time-box">
+        <h2 id="seconds">00</h2>
+        <span>SEC</span>
+      </div>
+    </div>
+
+    <input id="emailInput" type="text" placeholder="Loading...">
+
+<script>
+const placeholders = [
+  "Enter the emotional weight of your Monday (in kg)",
+  "Type your WiFi password’s personality (introvert/extrovert)",
+  "Enter the number of brain cells currently active",
+  "Input your pinky toe’s IQ (estimate allowed)",
+  "Enter the speed of your thoughts when someone says 'we need to talk' (km/h)",
+  "Type how many times you’ve opened the fridge for no reason today",
+  "Enter your luck level (0 = broke, 100 = main character)",
+  "Input the number of imaginary arguments you’ve won this week",
+  "Enter your sleep quality (measured in 'meh')",
+  "Type the radius of your comfort zone (in meters)",
+  "Enter how many times you said 'just one more episode'",
+  "Input your daily motivation (battery %)",
+  "Enter the amount of drama in your life (in GB)",
+  "Type your reaction time when someone calls your full name (ms)",
+  "Enter your confidence level before and after a haircut (two values)",
+  "Input the distance your phone travels when it slips from your hand (cm)",
+  "Enter the number of snacks required to finish one assignment",
+  "Type your productivity level when the deadline is tomorrow (%)"
+];
+
+const input = document.getElementById("emailInput");
+const randomText = placeholders[Math.floor(Math.random() * placeholders.length)];
+
+input.placeholder = randomText;
+</script>
+    <button>Useless Button</button>
+  </div>
+
+  <script>
+    // Set your launch date here
+    const launchDate = new Date("Apr 21, 2026 00:00:00").getTime();
+
+    const countdown = () => {
+      const now = new Date().getTime();
+      const diff = launchDate - now;
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      document.getElementById("days").innerText = days;
+      document.getElementById("hours").innerText = hours;
+      document.getElementById("minutes").innerText = minutes;
+      document.getElementById("seconds").innerText = seconds;
+    };
+
+    setInterval(countdown, 1000);
+  </script>
+
+</body>
+</html>
