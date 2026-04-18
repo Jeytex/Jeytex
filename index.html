@@ -1,14 +1,33 @@
 <style>
 button {
-  padding: 10px 20px;
+  padding: 12px 24px;
   font-size: 16px;
-  background: black;
-  color: white;
+  font-weight: 600;
+  background: linear-gradient(135deg, #111, #333);
+  color: #fff;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
+
+/* Hover effect */
 button:hover {
-  background: gray;
+  background: linear-gradient(135deg, #222, #555);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* Click effect */
+button:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Optional: focus outline for accessibility */
+button:focus {
+  outline: 2px solid #888;
+  outline-offset: 2px;
 }
 </style>
