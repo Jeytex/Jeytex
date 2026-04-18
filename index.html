@@ -1,10 +1,392 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>jeytex.online</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOID — Animation Experience</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --ink: #0a0a0f;
+    --paper: #f5f0e8;
+    --acid: #d4ff00;
+    --plasma: #ff2d6b;
+    --void: #0a0a0f;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--ink);
+    font-family: 'Space Mono', monospace;
+    cursor: none;
+  }
+
+  #cursor {
+    position: fixed;
+    width: 12px; height: 12px;
+    background: var(--acid);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, background 0.2s;
+    mix-blend-mode: exclusion;
+  }
+
+  #cursor-trail {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid var(--acid);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: left 0.12s ease, top 0.12s ease;
+    mix-blend-mode: exclusion;
+    opacity: 0.5;
+  }
+
+  #canvas-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+  }
+
+  #scene {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .big-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(80px, 14vw, 180px);
+    color: var(--paper);
+    letter-spacing: 0.04em;
+    line-height: 0.9;
+    mix-blend-mode: exclusion;
+    animation: textReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    user-select: none;
+  }
+
+  .big-text span {
+    display: inline-block;
+    animation: charFloat 3s ease-in-out infinite;
+  }
+  .big-text span:nth-child(1) { animation-delay: 0s; }
+  .big-text span:nth-child(2) { animation-delay: 0.1s; }
+  .big-text span:nth-child(3) { animation-delay: 0.2s; }
+  .big-text span:nth-child(4) { animation-delay: 0.3s; }
+  .big-text span:nth-child(5) { animation-delay: 0.4s; }
+  .big-text span:nth-child(6) { animation-delay: 0.5s; }
+
+  @keyframes textReveal {
+    from { opacity: 0; transform: translateY(60px) skewX(-8deg); }
+    to { opacity: 1; transform: translateY(0) skewX(0); }
+  }
+
+  @keyframes charFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .sub-text {
+    font-size: 11px;
+    color: var(--acid);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-top: 24px;
+    opacity: 0;
+    animation: fadeUp 1s 0.6s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .scan-line {
+    position: fixed;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--acid), transparent);
+    opacity: 0.15;
+    z-index: 5;
+    animation: scan 6s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes scan {
+    from { top: -2px; }
+    to { top: 100vh; }
+  }
+
+  .corner {
+    position: fixed;
+    width: 40px; height: 40px;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .corner::before, .corner::after {
+    content: '';
+    position: absolute;
+    background: var(--acid);
+    opacity: 0.6;
+    animation: cornerPulse 2s ease-in-out infinite;
+  }
+  .corner::before { width: 100%; height: 1px; top: 0; left: 0; }
+  .corner::after { width: 1px; height: 100%; top: 0; left: 0; }
+  @keyframes cornerPulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
+
+  .corner.tl { top: 20px; left: 20px; }
+  .corner.tr { top: 20px; right: 20px; transform: scaleX(-1); }
+  .corner.bl { bottom: 20px; left: 20px; transform: scaleY(-1); }
+  .corner.br { bottom: 20px; right: 20px; transform: scale(-1); }
+
+  #counter {
+    position: fixed;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--paper);
+    opacity: 0.3;
+    z-index: 10;
+    pointer-events: none;
+    animation: fadeUp 1s 1s ease forwards;
+    opacity: 0;
+  }
+
+  #particles-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .glitch {
+    animation: glitch 8s 2s infinite;
+  }
+
+  @keyframes glitch {
+    0%, 90%, 100% { text-shadow: none; transform: translateY(0) skewX(0); }
+    91% { text-shadow: -2px 0 var(--plasma), 2px 0 var(--acid); transform: translateY(-2px) skewX(-1deg); }
+    92% { text-shadow: 2px 0 var(--plasma), -2px 0 var(--acid); transform: translateY(2px) skewX(1deg); }
+    93% { text-shadow: none; transform: translateY(0); }
+    95% { text-shadow: -3px 0 var(--acid); transform: translateX(-2px); }
+    96% { text-shadow: 3px 0 var(--plasma); transform: translateX(2px); }
+    97% { text-shadow: none; transform: translateX(0); }
+  }
+
+  #noise {
+    position: fixed;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+  }
+</style>
 </head>
 <body>
-  <h1>🚀 Hi Guys</h1>
-  <p>Welcome to my first ever Website!!!</p>
+
+<div id="cursor"></div>
+<div id="cursor-trail"></div>
+<div id="noise"></div>
+<div class="scan-line"></div>
+<canvas id="canvas-bg"></canvas>
+<canvas id="particles-canvas"></canvas>
+
+<div class="corner tl"></div>
+<div class="corner tr"></div>
+<div class="corner bl"></div>
+<div class="corner br"></div>
+
+<div id="scene">
+  <div class="big-text glitch">
+    <span>V</span><span>O</span><span>I</span><span>D</span>
+  </div>
+  <div class="sub-text">move your cursor — click to detonate</div>
+</div>
+
+<div id="counter">SYS://ONLINE — 00:00:00</div>
+
+<script>
+const cursor = document.getElementById('cursor');
+const trail = document.getElementById('cursor-trail');
+let mx = window.innerWidth/2, my = window.innerHeight/2;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+  trail.style.left = mx + 'px';
+  trail.style.top = my + 'px';
+});
+
+const bgCanvas = document.getElementById('canvas-bg');
+const bgCtx = bgCanvas.getContext('2d');
+
+function resizeBg() {
+  bgCanvas.width = window.innerWidth;
+  bgCanvas.height = window.innerHeight;
+}
+resizeBg();
+window.addEventListener('resize', resizeBg);
+
+const GRID = 48;
+let t = 0;
+
+function drawGrid() {
+  const W = bgCanvas.width, H = bgCanvas.height;
+  bgCtx.clearRect(0, 0, W, H);
+  bgCtx.fillStyle = '#0a0a0f';
+  bgCtx.fillRect(0, 0, W, H);
+
+  const cols = Math.ceil(W / GRID) + 2;
+  const rows = Math.ceil(H / GRID) + 2;
+
+  for (let i = 0; i < cols; i++) {
+    for (let j = 0; j < rows; j++) {
+      const x = i * GRID;
+      const y = j * GRID;
+      const dx = x - mx;
+      const dy = y - my;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      const maxDist = 220;
+      const influence = Math.max(0, 1 - dist / maxDist);
+      const wave = Math.sin(t * 0.04 + i * 0.3 + j * 0.2) * 0.5 + 0.5;
+      const brightness = influence * 0.9 + wave * 0.06;
+
+      if (brightness > 0.01) {
+        const size = 1.5 + influence * 4;
+        const alpha = brightness;
+        const hue = influence > 0.5 ? `rgba(212,255,0,${alpha})` : `rgba(255,45,107,${alpha * 0.5})`;
+        bgCtx.fillStyle = hue;
+        bgCtx.beginPath();
+        bgCtx.arc(x, y, size, 0, Math.PI * 2);
+        bgCtx.fill();
+      }
+
+      if (wave > 0.97 && influence < 0.1) {
+        bgCtx.fillStyle = `rgba(245,240,232,0.04)`;
+        bgCtx.fillRect(x - 0.5, y - 0.5, 1, 1);
+      }
+    }
+  }
+}
+
+const pCanvas = document.getElementById('particles-canvas');
+const pCtx = pCanvas.getContext('2d');
+
+function resizeP() {
+  pCanvas.width = window.innerWidth;
+  pCanvas.height = window.innerHeight;
+}
+resizeP();
+window.addEventListener('resize', resizeP);
+
+class Particle {
+  constructor(x, y, burst) {
+    this.x = x || Math.random() * pCanvas.width;
+    this.y = y || Math.random() * pCanvas.height;
+    this.burst = burst || false;
+    const speed = burst ? (3 + Math.random() * 8) : (0.1 + Math.random() * 0.4);
+    const angle = burst ? Math.random() * Math.PI * 2 : -Math.PI/2 + (Math.random()-0.5) * 0.6;
+    this.vx = Math.cos(angle) * speed;
+    this.vy = Math.sin(angle) * speed;
+    this.life = burst ? 1 : Math.random();
+    this.maxLife = burst ? (0.4 + Math.random() * 0.6) : 1;
+    this.size = burst ? (2 + Math.random() * 4) : (1 + Math.random() * 1.5);
+    this.color = burst
+      ? (Math.random() > 0.5 ? [212,255,0] : [255,45,107])
+      : [212,255,0];
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    if (this.burst) {
+      this.vy += 0.18;
+      this.vx *= 0.97;
+      this.life -= 0.018;
+    } else {
+      this.life -= 0.003;
+      if (this.y < -10) this.life = 0;
+      const dx = this.x - mx, dy = this.y - my;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 100) {
+        this.vx -= (dx/dist) * 0.06;
+        this.vy -= (dy/dist) * 0.06;
+      }
+    }
+    return this.life > 0;
+  }
+  draw() {
+    const a = this.burst ? this.life : (this.life * 0.8);
+    pCtx.fillStyle = `rgba(${this.color.join(',')},${a.toFixed(2)})`;
+    pCtx.beginPath();
+    pCtx.arc(this.x, this.y, this.size * (this.burst ? this.life : 1), 0, Math.PI*2);
+    pCtx.fill();
+  }
+}
+
+let particles = [];
+for (let i = 0; i < 80; i++) {
+  particles.push(new Particle());
+}
+
+document.addEventListener('click', e => {
+  for (let i = 0; i < 80; i++) {
+    particles.push(new Particle(e.clientX, e.clientY, true));
+  }
+  cursor.style.background = '#ff2d6b';
+  setTimeout(() => cursor.style.background = '#d4ff00', 300);
+});
+
+function drawParticles() {
+  pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+  particles = particles.filter(p => p.update());
+  particles.forEach(p => p.draw());
+  while (particles.filter(p => !p.burst).length < 80) {
+    particles.push(new Particle(
+      Math.random() * pCanvas.width,
+      pCanvas.height + 10
+    ));
+  }
+}
+
+let startTime = Date.now();
+function updateCounter() {
+  const el = document.getElementById('counter');
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const h = String(Math.floor(elapsed/3600)).padStart(2,'0');
+  const m = String(Math.floor((elapsed%3600)/60)).padStart(2,'0');
+  const s = String(elapsed%60).padStart(2,'0');
+  el.textContent = `SYS://ONLINE — ${h}:${m}:${s}`;
+}
+
+function loop() {
+  t++;
+  drawGrid();
+  drawParticles();
+  updateCounter();
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
 </body>
 </html>
